@@ -1,0 +1,19 @@
+﻿@model IEnumerable<Mailoo.Models.Category>
+
+<h2>Categories</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model)
+        {
+            <tr>
+                <td>@category.Name</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

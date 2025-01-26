@@ -1,0 +1,17 @@
+﻿@model Order
+@{
+    ViewData["Title"] = "Apply Promo Code";
+}
+
+<h2>Apply Promo Code</h2>
+
+<form asp-action="ApplyPromoCode" method="post">
+    <label for="promoCode">Promo Code:</label>
+    <input type="text" name="PromoCode" id="promoCode" />
+    <button type="submit">Apply</button>
+</form>
+
+@if (TempData["Message"] != null)
+{
+    <p>@TempData["Message"]</p>
+}

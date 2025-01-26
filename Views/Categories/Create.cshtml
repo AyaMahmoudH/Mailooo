@@ -1,0 +1,15 @@
+﻿@model Mailoo.Models.Category
+
+<h2>Create Category</h2>
+
+@using (Html.BeginForm())
+{
+   
+    <div class="form-group mb-3">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+}

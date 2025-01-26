@@ -1,0 +1,41 @@
+﻿@model IEnumerable<Mailoo.Models.PromoCode> 
+@{
+    ViewData["Title"] = "Manage Promo Codes";
+}
+
+<h2>Promo Codes</h2>
+
+<a asp-action="Create" class="btn btn-primary">Add New Promo Code</a>
+<br /><br />
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Code</th>
+            <th>Discount (%)</th>
+            <th>Expiry Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var promo in Model)
+        {
+            <tr>
+                <td>@promo.Id</td>
+                <td>@promo.Code</td>
+                <td>@promo.DiscountPercentage</td>
+                <td>@promo.ExpiryDate.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@promo.Id" class="btn btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@promo.Id" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
