@@ -15,49 +15,55 @@
         }
         else
         {
-            
             @foreach (var item in Model)
             {
-            <div class="col-md-4 col-sm-6 d-flex justify-content-center">
-                <div class="card" style="width: 18rem;">
-                    <img src="@item.imageSrc" class="card-img-top" alt="Product Image">
-                    <div class="card-body">
-                        <h2 class="card-title">@item.Name</h2>
-                        <p class="card-text">@item.Description</p>
-                        <h4>
-                            @item.TotalPrice @if (@item.TotalPrice != @item.Price)
-
-                            {
-                                <span class="text-decoration-line-through text-danger">@item.Price</span>
-                            }
-                        </h4>
-                        <form asp-action="AddProduct" asp-controller="Cart" class="d-inline-block me-2" method="post">
-                            <input type="hidden" name="ID" value="@item.ID" />
-                            <input type="hidden" name="Name" value="@item.Name" />
-                            <input type="hidden" name="Price" value="@item.Price" />
-                            <input type="hidden" name="SQuantity" value="@item.SQuantity" />
-                            <input type="hidden" name="MQuantity" value="@item.MQuantity" />
-                            <input type="hidden" name="LQuantity" value="@item.LQuantity" />
-                            <input type="hidden" name="TotalPrice" value="@item.TotalPrice" />
-                            <input type="hidden" name="Discount" value="@item.Discount" />
-                            <input type="hidden" name="imageSrc" value="@item.imageSrc" />
+                <div class="col-md-4 col-sm-6 d-flex justify-content-center">
+                    <div class="card" style="width: 18rem;">
+                        <img src="@item.imageSrc" class="card-img-top" alt="Product Image">
+                        <div class="card-body">
+                            <h2 class="card-title">@item.Name</h2>
+                            <p class="card-text">@item.Description</p>
+                            <h4>
+                                @item.TotalPrice
+                                @if (@item.TotalPrice != @item.Price)
+                                {
+                                    <span class="text-decoration-line-through text-danger">@item.Price</span>
+                                }
+                            </h4>
+                            <form asp-action="AddProduct" asp-controller="Cart" class="d-inline-block me-2" method="post">
+                                <input type="hidden" name="ID" value="@item.ID" />
+                                <input type="hidden" name="Name" value="@item.Name" />
+                                <input type="hidden" name="Price" value="@item.Price" />
+                                <input type="hidden" name="TotalPrice" value="@item.TotalPrice" />
+                                <input type="hidden" name="Discount" value="@item.Discount" />
+                                <input type="hidden" name="imageSrc" value="@item.imageSrc" />
                                 <div class="form-group mb-3">
                                     <label class="control-label">Sizes</label>
                                     <select name="size" class="form-control">
-                                        @if (item.SQuantity > 0)
+                                        @foreach (var variant in item.Variants)
                                         {
-                                            <option class="form-check-input" value=@Sizes.S>Small</option>
-                                        }
-                                        @if (item.MQuantity > 0)
-                                        {
-                                            <option class="form-check-input" value=@Sizes.M>Medium</option>
-                                        }
-                                        @if (item.LQuantity > 0)
-                                        {
-                                            <option class="form-check-input" value=@Sizes.L>Large</option>
+                                            if (variant.Quantity > 0)
+                                            {
+                                                <option value="@variant.SizeId">@variant.Size.SizeName</option>
+                                            }
                                         }
                                     </select>
+
                                 </div>
+                                <div class="form-group mb-3">
+                                    <label class="control-label">Colors</label>
+                                    <select name="size" class="form-control">
+                                        @foreach (var variant in item.Variants)
+                                        {
+                                            if (variant.Quantity > 0)
+                                            {
+                                                <option value="@variant.ColorId">@variant.Color.ColorName</option>
+                                            }
+                                        }
+                                    </select>
+
+                                </div>
+
                                 @if (item.OrderProducts != null && item.OrderProducts.Any(op => op.order.user.Email == User.Identity.Name
                                && op.order.OrderStatus == OrderStatus.New))
                                 {
@@ -67,23 +73,22 @@
                                 {
                                     <button type="submit" class="btn btn-success">Add to Cart</button>
                                 }
-                        </form>
+                            </form>
 
-                        <form asp-action="AddtoWishlist" asp-controller="Wishlist" class="d-inline-block" method="post">
-                            <input type="hidden" name="ID" value="@item.ID" />
-                            <input type="hidden" name="Name" value="@item.Name" />
-                            <input type="hidden" name="Price" value="@item.Price" />
-                            <input type="hidden" name="Description" value="@item.Description" />
-                            <input type="hidden" name="imageSrc" value="@item.imageSrc" />
-                            <button type="submit" class="btn btn-outline-danger">
-                                <i class="bi bi-heart"></i>
-                            </button>
-
-                        </form>
+                            <form asp-action="AddtoWishlist" asp-controller="Wishlist" class="d-inline-block" method="post">
+                                <input type="hidden" name="ID" value="@item.ID" />
+                                <input type="hidden" name="Name" value="@item.Name" />
+                                <input type="hidden" name="Price" value="@item.Price" />
+                                <input type="hidden" name="Description" value="@item.Description" />
+                                <input type="hidden" name="imageSrc" value="@item.imageSrc" />
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="bi bi-heart"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
         }
     </div>
 </div>

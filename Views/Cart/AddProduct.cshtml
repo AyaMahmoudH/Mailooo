@@ -6,17 +6,15 @@
 <form method="post" asp-action="AddProduct">
     <input asp-for="ID" hidden />
     <input asp-for="AdditionDate" hidden />
-    <input asp-for="SQuantity" hidden />
-    <input asp-for="MQuantity" hidden />
-    <input asp-for="LQuantity" hidden />
     <input asp-for="clientFile" hidden />
+
     <div class="border p-3 mt-4">
         <div class="row pb-2">
             <h2 class="text-primary">Add product to cart</h2>
             <hr />
         </div>
         <div>
-            <img id="myImg" height="200" />
+            <img id="myImg" src="@Model.imageSrc" height="200" />
         </div>
         <div class="mb-3">
             <label asp-for="Name"></label>
@@ -30,20 +28,33 @@
         <div class="mb-3">
             <label asp-for="Discount"></label>
             <input asp-for="Discount" class="form-control" disabled />
-
         </div>
         <div class="mb-3">
             <label asp-for="Description"></label>
             <input asp-for="Description" class="form-control" disabled />
         </div>
+
+        <!-- قسم اختيار المتغيرات (الحجم / اللون) -->
+        <div class="mb-3">
+            <label for="variantDropdown"><strong>Choose Variant:</strong></label>
+            <select id="variantDropdown" name="selectedVariant" class="form-select">
+                <option value="">Select Variant</option>
+                @foreach (var variant in Model.Variants)
+                {
+                    <option value="@variant.Id">@variant.Size - @variant.Color</option>
+                }
+            </select>
+        </div>
+
         <br />
         <hr />
         <button type="submit" class="btn btn-primary" style="width:150px">Add</button>
         <a asp-action="Index_U" asp-controller="User" class="btn btn-secondary" style="width:150px">
-            back to items
+            Back to items
         </a>
     </div>
 </form>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

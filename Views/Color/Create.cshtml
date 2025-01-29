@@ -1,0 +1,9 @@
+﻿@model Mailoo.Models.Color
+
+<h2>Add a new color</h2>
+
+<form asp-action="Create" method="post">
+    <label>Color name:</label>
+    <input asp-for="ColorName" class="form-control" required />
+    <button type="submit" class="btn btn-success mt-2">Save</button>
+</form>

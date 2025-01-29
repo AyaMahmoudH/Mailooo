@@ -1,0 +1,26 @@
+﻿@model IEnumerable<Mailoo.Models.Size>
+
+<h2>Size management</h2>
+
+<a href="@Url.Action("Create")" class="btn btn-primary">Add a new size</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Size</th>
+            <th>procedures</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var size in Model)
+        {
+            <tr>
+                <td>@size.SizeName</td>
+                <td>
+                    <a href="@Url.Action("Edit", new { id = size.Id })" class="btn btn-warning">Edit</a>
+                    <a href="@Url.Action("Delete", new { id = size.Id })" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete?')">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,10 @@
+﻿@model Mailoo.Models.Size
+
+<h2>Edit size</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <label>Size name:</label>
+    <input asp-for="SizeName" class="form-control" required />
+    <button type="submit" class="btn btn-primary mt-2">Edit</button>
+</form>

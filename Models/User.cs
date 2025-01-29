@@ -60,7 +60,8 @@ namespace Mailo.Models
 
         public DateTime RegistrationDate { get; set; } = DateTime.Now;
 
-        public string PasswordResetToken { get; set; } = Guid.NewGuid().ToString();
+        public string? PasswordResetToken { get; set; }
+        public DateTime? PasswordResetTokenExpiry { get; set; }
         public ICollection<Contact>? Message { get; set; }
         public ICollection<Wishlist>? wishlist { get; set; }
         public ICollection<Order>? orders { get; set; }

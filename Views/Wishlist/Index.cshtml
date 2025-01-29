@@ -21,20 +21,27 @@
         font-weight: 600;
         margin-bottom: 20px;
     }
+
+    .variant-item {
+        background-color: rgba(200, 200, 200, 0.3);
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
 </style>
 
-    @if (Model == null || !Model.Any())
-    {
+@if (Model == null || !Model.Any())
+{
     <div class="container flex-wrap d-flex justify-content-center align-items-center align-content-between">
-        <div class="text-center  flex-wrap d-flex justify-content-center align-items-center flex-column align-content-center">
-            <div class="col-md-6 ">
+        <div class="text-center flex-wrap d-flex justify-content-center align-items-center flex-column align-content-center">
+            <div class="col-md-6">
                 <div class="card shadow-lg p-4">
-                    <!-- Empty Cart Icon -->
+                    <!-- Empty Wishlist Icon -->
                     <div class="mb-3">
-                        <i class="fas fa-shopping-cart fa-3x text-muted"></i>
+                        <i class="fas fa-heart fa-3x text-muted"></i>
                     </div>
 
-                    <!-- Empty Cart Message -->
+                    <!-- Empty Wishlist Message -->
                     <h3>Wishlist is Empty</h3>
                     <p class="text-muted">It looks like you haven't added anything to your wishlist yet.</p>
 
@@ -45,40 +52,57 @@
                 </div>
             </div>
         </div>
+    </div>
+}
+else
+{
+    <h2 class="text-primary">Your Wishlist</h2>
+    <div class="container">
+        <div class="row justify-content-center">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 col-sm-6 d-flex justify-content-center">
+                    <div class="card" style="width: 18rem;">
+                        <img src="@item.imageSrc" class="card-img-top" alt="Product Image">
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Name</h5>
+                            <p class="card-text">@item.Description</p>
+                            <p>
+                                @item.TotalPrice
+                                @if (@item.Price != @item.TotalPrice)
+                                {
+                                    <span class="text-decoration-line-through">@item.Price</span>
+                                }
+                            </p>
 
-        </div>
- }
-    else
-    {
-<h2 class="text-primary">Your Whishlist</h2>
-<div class="container">
-    <div class="row justify-content-center">
-        @foreach (var item in Model)
-        {
-            <div class="col-md-4 col-sm-6 d-flex justify-content-center">
-                <div class="card" style="width: 18rem;">
-                    <img src="@item.imageSrc" class="card-img-top" alt="Product Image">
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Name</h5>
-                        <p class="card-text">@item.Description</p>
-                        <p>
-                            @item.TotalPrice @if (@item.Price != @item.TotalPrice)
+                            <!-- Display Variants -->
+                            <h6>Variants</h6>
+                            @if (item.Variants != null && item.Variants.Any())
                             {
-                                <span class="text-decoration-line-through">@item.Price</span>
+                                @foreach (var variant in item.Variants)
+                                {
+                                    <div class="variant-item">
+                                        <p><strong>Color:</strong> @variant.Color.ColorName</p>
+                                        <p><strong>Size:</strong> @variant.Size.SizeName</p>
+                                        <p><strong>Quantity:</strong> @variant.Quantity</p>
+                                    </div>
+                                }
                             }
-                        </p>
+                            else
+                            {
+                                <p>No variants available.</p>
+                            }
 
-                        <form asp-action="AddProduct" asp-controller="Cart" class="d-inline-block me-2" method="post">
-                            <input type="hidden" name="ID" value="@item.ID" />
-                            <input type="hidden" name="Name" value="@item.Name" />
-                            <input type="hidden" name="Price" value="@item.Price" />
-                            <input type="hidden" name="SQuantity" value="@item.SQuantity" />
-                            <input type="hidden" name="MQuantity" value="@item.MQuantity" />
-                            <input type="hidden" name="LQuantity" value="@item.LQuantity" />
-                            <input type="hidden" name="TotalPrice" value="@item.TotalPrice" />
-                            <input type="hidden" name="Discount" value="@item.Discount" />
-                            <input type="hidden" name="imageSrc" value="@item.imageSrc" />
-                             @if (item.OrderProducts != null
+                            <!-- Add to Cart Form -->
+                            <form asp-action="AddProduct" asp-controller="Cart" class="d-inline-block me-2" method="post">
+                                <input type="hidden" name="ID" value="@item.ID" />
+                                <input type="hidden" name="Name" value="@item.Name" />
+                                <input type="hidden" name="Price" value="@item.Price" />
+                                <input type="hidden" name="TotalPrice" value="@item.TotalPrice" />
+                                <input type="hidden" name="Discount" value="@item.Discount" />
+                                <input type="hidden" name="imageSrc" value="@item.imageSrc" />
+
+                                @if (item.OrderProducts != null
                                && item.OrderProducts.Any(op =>
                                op.order.user.Email == User.Identity.Name
                                && op.order.OrderStatus == OrderStatus.New
@@ -90,20 +114,19 @@
                                 {
                                     <button type="submit" class="btn btn-success">Add to Cart</button>
                                 }
-                        </form>
-                        <form asp-action="RemoveFromWishlist" asp-controller="Wishlist" class="d-inline-block" method="post">
-                            <input type="hidden" name="ID" value="@item.ID" />
-                            <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash3-fill btn-danger"></i> Remove
-                            </button>
-                        </form>
-                        
+                            </form>
 
+                            <!-- Remove from Wishlist -->
+                            <form asp-action="RemoveFromWishlist" asp-controller="Wishlist" class="d-inline-block" method="post">
+                                <input type="hidden" name="ID" value="@item.ID" />
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-trash3-fill btn-danger"></i> Remove
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-           
-        }
+            }
+        </div>
     </div>
-</div>
 }

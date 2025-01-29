@@ -25,7 +25,20 @@ namespace Mailoo.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PromoCodes",
+                name: "Color",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ColorName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Color", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PromoCode",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -36,7 +49,20 @@ namespace Mailoo.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PromoCodes", x => x.Id);
+                    table.PrimaryKey("PK_PromoCode", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Size",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SizeName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Size", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -57,9 +83,8 @@ namespace Mailoo.Migrations
                     Governorate = table.Column<int>(type: "int", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     RegistrationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PasswordResetToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
-                    HiringDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    PasswordResetToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PasswordResetTokenExpiry = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -78,9 +103,6 @@ namespace Mailoo.Migrations
                     Discount = table.Column<double>(type: "float", nullable: false),
                     TotalPrice = table.Column<double>(type: "float", nullable: false, computedColumnSql: "[Price]-([Discount]/100)*[Price]"),
                     Price = table.Column<double>(type: "float", nullable: false),
-                    SQuantity = table.Column<int>(type: "int", nullable: false),
-                    MQuantity = table.Column<int>(type: "int", nullable: false),
-                    LQuantity = table.Column<int>(type: "int", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     dbImage = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: false)
@@ -117,42 +139,76 @@ namespace Mailoo.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Order",
+                name: "Employee",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    OrderPrice = table.Column<double>(type: "float", nullable: false),
-                    DeliveryFee = table.Column<double>(type: "float", nullable: false),
-                    TotalPrice = table.Column<double>(type: "float", nullable: false, computedColumnSql: "[OrderPrice] + [DeliveryFee]"),
-                    PromoCodeUsed = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OrderAddress = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    FinalPrice = table.Column<double>(type: "float", nullable: false),
-                    OrderStatus = table.Column<int>(type: "int", nullable: false),
-                    UserID = table.Column<int>(type: "int", nullable: false),
-                    EmpID = table.Column<int>(type: "int", nullable: true),
-                    PromoCodeId = table.Column<int>(type: "int", nullable: true)
+                    ID = table.Column<int>(type: "int", nullable: false),
+                    HiringDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Order", x => x.ID);
+                    table.PrimaryKey("PK_Employee", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Order_PromoCodes_PromoCodeId",
-                        column: x => x.PromoCodeId,
-                        principalTable: "PromoCodes",
+                        name: "FK_Employee_User_ID",
+                        column: x => x.ID,
+                        principalTable: "User",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductVariant",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    ColorId = table.Column<int>(type: "int", nullable: false),
+                    SizeId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductVariant", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductVariant_Color_ColorId",
+                        column: x => x.ColorId,
+                        principalTable: "Color",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Order_User_EmpID",
-                        column: x => x.EmpID,
-                        principalTable: "User",
+                        name: "FK_ProductVariant_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Order_User_UserID",
-                        column: x => x.UserID,
-                        principalTable: "User",
+                        name: "FK_ProductVariant_Size_SizeId",
+                        column: x => x.SizeId,
+                        principalTable: "Size",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Review",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Review", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Review_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -183,13 +239,55 @@ namespace Mailoo.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Order",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderPrice = table.Column<double>(type: "float", nullable: false),
+                    DeliveryFee = table.Column<double>(type: "float", nullable: false),
+                    TotalPrice = table.Column<double>(type: "float", nullable: false, computedColumnSql: "[OrderPrice] + [DeliveryFee]"),
+                    PromoCodeUsed = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OrderAddress = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FinalPrice = table.Column<double>(type: "float", nullable: false),
+                    OrderStatus = table.Column<int>(type: "int", nullable: false),
+                    UserID = table.Column<int>(type: "int", nullable: false),
+                    EmpID = table.Column<int>(type: "int", nullable: true),
+                    PromoCodeId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Order", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Order_Employee_EmpID",
+                        column: x => x.EmpID,
+                        principalTable: "Employee",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Order_PromoCode_PromoCodeId",
+                        column: x => x.PromoCodeId,
+                        principalTable: "PromoCode",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Order_User_UserID",
+                        column: x => x.UserID,
+                        principalTable: "User",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OrderProduct",
                 columns: table => new
                 {
                     OrderID = table.Column<int>(type: "int", nullable: false),
                     ProductID = table.Column<int>(type: "int", nullable: false),
                     Sizes = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    VariantID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -199,6 +297,12 @@ namespace Mailoo.Migrations
                         column: x => x.OrderID,
                         principalTable: "Order",
                         principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_OrderProduct_ProductVariant_VariantID",
+                        column: x => x.VariantID,
+                        principalTable: "ProductVariant",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_OrderProduct_Product_ProductID",
@@ -240,8 +344,8 @@ namespace Mailoo.Migrations
 
             migrationBuilder.InsertData(
                 table: "User",
-                columns: new[] { "ID", "Address", "Discriminator", "Email", "FName", "Gender", "Governorate", "LName", "Password", "PasswordResetToken", "PhoneNumber", "RegistrationDate", "UserType", "Username" },
-                values: new object[] { 2, "Beni-Suef", "User", "mailostoreee@gmail.com", "Mai", 1, 15, "Assem", "MaiiiAsss123#44", "006b6175-6d30-41bc-9272-3d90d94a0581", "01011895030", new DateTime(2025, 1, 25, 17, 47, 40, 282, DateTimeKind.Local).AddTicks(1124), 1, "MaiAssemAdmin123" });
+                columns: new[] { "ID", "Address", "Email", "FName", "Gender", "Governorate", "LName", "Password", "PasswordResetToken", "PasswordResetTokenExpiry", "PhoneNumber", "RegistrationDate", "UserType", "Username" },
+                values: new object[] { 2, "Beni-Suef", "mailostoreee@gmail.com", "Mai", 1, 15, "Assem", "MaiiiAsss123#44", null, null, "01011895030", new DateTime(2025, 1, 29, 4, 20, 26, 309, DateTimeKind.Local).AddTicks(7430), 1, "MaiAssemAdmin123" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Category_Name",
@@ -275,6 +379,11 @@ namespace Mailoo.Migrations
                 column: "ProductID");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrderProduct_VariantID",
+                table: "OrderProduct",
+                column: "VariantID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Payment_OrderId",
                 table: "Payment",
                 column: "OrderId",
@@ -289,6 +398,26 @@ namespace Mailoo.Migrations
                 name: "IX_Product_CategoryId",
                 table: "Product",
                 column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariant_ColorId",
+                table: "ProductVariant",
+                column: "ColorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariant_ProductId",
+                table: "ProductVariant",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductVariant_SizeId",
+                table: "ProductVariant",
+                column: "SizeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Review_ProductId",
+                table: "Review",
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_Email",
@@ -327,22 +456,37 @@ namespace Mailoo.Migrations
                 name: "Payment");
 
             migrationBuilder.DropTable(
+                name: "Review");
+
+            migrationBuilder.DropTable(
                 name: "Wishlist");
+
+            migrationBuilder.DropTable(
+                name: "ProductVariant");
 
             migrationBuilder.DropTable(
                 name: "Order");
 
             migrationBuilder.DropTable(
+                name: "Color");
+
+            migrationBuilder.DropTable(
                 name: "Product");
 
             migrationBuilder.DropTable(
-                name: "PromoCodes");
+                name: "Size");
 
             migrationBuilder.DropTable(
-                name: "User");
+                name: "Employee");
+
+            migrationBuilder.DropTable(
+                name: "PromoCode");
 
             migrationBuilder.DropTable(
                 name: "Category");
+
+            migrationBuilder.DropTable(
+                name: "User");
         }
     }
 }

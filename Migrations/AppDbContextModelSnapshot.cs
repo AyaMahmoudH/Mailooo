@@ -114,9 +114,14 @@ namespace Mailoo.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<int>("VariantID")
+                        .HasColumnType("int");
+
                     b.HasKey("OrderID", "ProductID", "Sizes");
 
                     b.HasIndex("ProductID");
+
+                    b.HasIndex("VariantID");
 
                     b.ToTable("OrderProduct", (string)null);
                 });
@@ -183,12 +188,6 @@ namespace Mailoo.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("LQuantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MQuantity")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -196,9 +195,6 @@ namespace Mailoo.Migrations
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
-
-                    b.Property<int>("SQuantity")
-                        .HasColumnType("int");
 
                     b.Property<double>("TotalPrice")
                         .ValueGeneratedOnAddOrUpdate()
@@ -227,11 +223,6 @@ namespace Mailoo.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -266,8 +257,10 @@ namespace Mailoo.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("PasswordResetToken")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("PasswordResetTokenExpiry")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -298,9 +291,7 @@ namespace Mailoo.Migrations
 
                     b.ToTable("User", (string)null);
 
-                    b.HasDiscriminator().HasValue("User");
-
-                    b.UseTphMappingStrategy();
+                    b.UseTptMappingStrategy();
 
                     b.HasData(
                         new
@@ -313,9 +304,8 @@ namespace Mailoo.Migrations
                             Governorate = 15,
                             LName = "Assem",
                             Password = "MaiiiAsss123#44",
-                            PasswordResetToken = "006b6175-6d30-41bc-9272-3d90d94a0581",
                             PhoneNumber = "01011895030",
-                            RegistrationDate = new DateTime(2025, 1, 25, 17, 47, 40, 282, DateTimeKind.Local).AddTicks(1124),
+                            RegistrationDate = new DateTime(2025, 1, 29, 4, 20, 26, 309, DateTimeKind.Local).AddTicks(7430),
                             UserType = 1,
                             Username = "MaiAssemAdmin123"
                         });
@@ -360,6 +350,54 @@ namespace Mailoo.Migrations
                     b.ToTable("Category", (string)null);
                 });
 
+            modelBuilder.Entity("Mailoo.Models.Color", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ColorName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Color", (string)null);
+                });
+
+            modelBuilder.Entity("Mailoo.Models.ProductVariant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ColorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SizeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ColorId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SizeId");
+
+                    b.ToTable("ProductVariant", (string)null);
+                });
+
             modelBuilder.Entity("Mailoo.Models.PromoCode", b =>
                 {
                     b.Property<int>("Id")
@@ -380,7 +418,56 @@ namespace Mailoo.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PromoCodes");
+                    b.ToTable("PromoCode", (string)null);
+                });
+
+            modelBuilder.Entity("Mailoo.Models.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Review", (string)null);
+                });
+
+            modelBuilder.Entity("Mailoo.Models.Size", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("SizeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Size", (string)null);
                 });
 
             modelBuilder.Entity("Mailo.Models.Employee", b =>
@@ -390,7 +477,7 @@ namespace Mailoo.Migrations
                     b.Property<DateTime>("HiringDate")
                         .HasColumnType("datetime2");
 
-                    b.HasDiscriminator().HasValue("Employee");
+                    b.ToTable("Employee", (string)null);
                 });
 
             modelBuilder.Entity("Mailo.Models.Contact", b =>
@@ -441,6 +528,14 @@ namespace Mailoo.Migrations
                         .HasForeignKey("ProductID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Mailoo.Models.ProductVariant", "Variant")
+                        .WithMany("OrderProducts")
+                        .HasForeignKey("VariantID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Variant");
 
                     b.Navigation("order");
 
@@ -496,6 +591,53 @@ namespace Mailoo.Migrations
                     b.Navigation("user");
                 });
 
+            modelBuilder.Entity("Mailoo.Models.ProductVariant", b =>
+                {
+                    b.HasOne("Mailoo.Models.Color", "Color")
+                        .WithMany()
+                        .HasForeignKey("ColorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mailo.Models.Product", "Product")
+                        .WithMany("Variants")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mailoo.Models.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Color");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Size");
+                });
+
+            modelBuilder.Entity("Mailoo.Models.Review", b =>
+                {
+                    b.HasOne("Mailo.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Mailo.Models.Employee", b =>
+                {
+                    b.HasOne("Mailo.Models.User", null)
+                        .WithOne()
+                        .HasForeignKey("Mailo.Models.Employee", "ID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Mailo.Models.Order", b =>
                 {
                     b.Navigation("OrderProducts");
@@ -506,6 +648,8 @@ namespace Mailoo.Migrations
             modelBuilder.Entity("Mailo.Models.Product", b =>
                 {
                     b.Navigation("OrderProducts");
+
+                    b.Navigation("Variants");
 
                     b.Navigation("wishlists");
                 });
@@ -524,6 +668,11 @@ namespace Mailoo.Migrations
             modelBuilder.Entity("Mailoo.Models.Category", b =>
                 {
                     b.Navigation("products");
+                });
+
+            modelBuilder.Entity("Mailoo.Models.ProductVariant", b =>
+                {
+                    b.Navigation("OrderProducts");
                 });
 
             modelBuilder.Entity("Mailoo.Models.PromoCode", b =>

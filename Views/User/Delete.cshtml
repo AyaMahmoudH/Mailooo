@@ -7,7 +7,7 @@
 <head>
     <style>
         .container {
-            background-color: rgba(143, 217, 251, 0.2); /* White with 80% opacity    */
+            background-color: rgba(143, 217, 251, 0.2);
             border-radius: 10px;
             padding: 2%;
             width: 50%;
@@ -18,71 +18,107 @@
         .form-control {
             width: 250px;
         }
-    </style>
 
+        .variant-item {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h2 class="text-primary">Delete Item</h2>
+    <h2 class="text-primary text-center">Delete Item</h2>
     <hr />
-    <div class="container justify-center mt-5">
+    <div class="container mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <form method="post" asp-action="Delete">
-                    <input asp-for="ID" hidden />
-                        <div class="mb-3">
-                            <label asp-for="Name"></label>
-                            <input asp-for="Name" disabled class="form-control" />
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="Price"></label>
-                            <input asp-for="Price" disabled class="form-control" />
-                        </div>
-                        <div>
-                            <input type="hidden" asp-for="clientFile" />
-                        </div>
+                    <input asp-for="ID" type="hidden" />
                     <div class="mb-3">
-                        <label asp-for="SQuantity">S Quantity</label>
-                        <input asp-for="SQuantity" disabled class="form-control" />
-
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" disabled class="form-control" />
                     </div>
                     <div class="mb-3">
-                        <label asp-for="MQuantity">M Quantity</label>
-                        <input asp-for="MQuantity" disabled class="form-control" />
+                        <label asp-for="Price" class="form-label"></label>
+                        <input asp-for="Price" disabled class="form-control" />
                     </div>
-                        <div class="mb-3">
-                            <label asp-for="LQuantity">L Quantity</label>
-                            <input asp-for="LQuantity" disabled class="form-control" />
+                    <div class="mb-3">
+                        <label asp-for="Discount" class="form-label"></label>
+                        <input asp-for="Discount" disabled class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label"></label>
+                        <input asp-for="Description" disabled class="form-control" />
+                    </div>
+                  
 
-                        </div>
-                    
+                    <div class="form-group mb-3">
+                        @* <h4>Variants</h4> *@
+                        <div id="variants-container">
+                            @foreach (var variant in Model.Variants)
+                            {
+                                <div class="variant-item">
+                                    <label>Color</label>
+                                    <input value="@variant.Color.ColorName" disabled class="form-control" />
 
-                        <div class="mb-3">
-                            <label asp-for="Description"></label>
-                            <input asp-for="Description" disabled class="form-control" />
-                        </div>
+                                    <label>Size</label>
+                                    <input value="@variant.Size.SizeName" disabled class="form-control" />
 
-                        <div class="form-group">
-                            <label asp-for="CategoryId" class="control-label"></label>
-                            <select asp-for="CategoryId" disabled class="form-control">
-                                <option value="0">Pants</option>
-                                <option value="1">Hoodie</option>
-                            </select>
+                                    <label>Quantity</label>
+                                    <input value="@variant.Quantity" disabled class="form-control" />
+
+                                    <input type="hidden" name="Variants[@variant.Color.ColorName]_@variant.Size.SizeName].CategoryId" value="@Model.CategoryId" />
+                                </div>
+                            }
                         </div>
-                        <br />
-                        <hr />
-                        <button type="submit" class="btn btn-primary" >Delete</button>
-                        <a asp-action="Index" asp-controller="Product" class="btn btn-secondary" >
-                            back to items
-                        </a>
+                    </div>
+
+                    <hr />
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                    <a asp-action="Index" asp-controller="Product" class="btn btn-secondary">Back to Items</a>
                 </form>
             </div>
         </div>
     </div>
     <br />
-    <br />
 </body>
 </html>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const colorCheckboxes = document.querySelectorAll(".color-checkbox");
+            const sizeCheckboxes = document.querySelectorAll(".size-checkbox");
+            const variantsContainer = document.getElementById("variants");
 
+            function updateVariants() {
+                variantsContainer.innerHTML = "";
 
-@* hhhhhhhhhhhhhhhhhhhhhhhhh *@
+                const selectedColors = Array.from(colorCheckboxes).filter(c => c.checked);
+                const selectedSizes = Array.from(sizeCheckboxes).filter(s => s.checked);
+                const categoryId = document.querySelector('[asp-for="CategoryId"]').value;
+
+                selectedColors.forEach(color => {
+                    selectedSizes.forEach(size => {
+                        const colorId = color.value;
+                        const colorName = color.dataset.name;
+                        const sizeId = size.value;
+                        const sizeName = size.dataset.name;
+
+                        const variantHtml = `
+                                <div class="variant">
+                                    <label>Quantity (${colorName} - ${sizeName}):</label>
+                                    <input type="hidden" name="Variants[${colorId}_${sizeId}].ColorId" value="${colorId}" />
+                                    <input type="hidden" name="Variants[${colorId}_${sizeId}].SizeId" value="${sizeId}" />
+                                    <input type="hidden" name="Variants[${colorId}_${sizeId}].CategoryId" value="${categoryId}" />  <!-- ✅ تخزين CategoryId لكل Variant -->
+                                    <input type="number" name="Variants[${colorId}_${sizeId}].Quantity" class="form-control" required />
+                                </div>`;
+                        variantsContainer.innerHTML += variantHtml;
+                    });
+                });
+            }
+
+            colorCheckboxes.forEach(cb => cb.addEventListener("change", updateVariants));
+            sizeCheckboxes.forEach(cb => cb.addEventListener("change", updateVariants));
+        });
+    </script>
+}

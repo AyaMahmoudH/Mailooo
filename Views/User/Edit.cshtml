@@ -7,98 +7,151 @@
 <head>
     <style>
         .container {
-            background-color: rgba(143, 217, 251, 0.2); 
+            background-color: rgba(143, 217, 251, 0.2);
             border-radius: 10px;
             padding: 2%;
             width: 50%;
-            margin:auto;
+            margin: auto;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
         }
+
         .form-control {
             width: 300px;
         }
     </style>
 </head>
-<body>
-        <h2 class="text-primary">Edit Item</h2>
-        <hr />
+    <h2 class="text-primary">Edit Item</h2>
+    <hr />
     <div class="container justify-center mt-5">
         <div class="row justify-content-center">
             <div class="col-md-4">
-                <form method="post" asp-action="Edit" enctype="multipart/form-data"> 
-                        <div asp-validation-summary="All"></div>
-                        <div class="form-group mb-3">
-                            <label asp-for="Name"></label>
-                            <input asp-for="Name" class="form-control" />
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                        </div>
+                <form method="post" asp-action="Edit" enctype="multipart/form-data">
+                    <div asp-validation-summary="All"></div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Name"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
 
                     <div class="form-group mb-3">
                         <label asp-for="Price"></label>
                         <input type="number" asp-for="Price" class="form-control" />
                         <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
+
                     <div class="form-group mb-3">
                         <label asp-for="Discount"></label>
                         <input type="number" asp-for="Discount" class="form-control" />
                         <span asp-validation-for="Discount" class="text-danger"></span>
                     </div>
-                    <div class="form-group mb-3">
-                            <label asp-for="Description"></label>
-                            <input asp-for="Description" class="form-control" />
-                            <span asp-validation-for="Description" class="text-danger"></span>
-                        </div>
-
 
                     <div class="form-group mb-3">
-                        <label asp-for="SQuantity">S Quantity</label>
-                        <input asp-for="SQuantity" class="form-control" />
-                        <span asp-validation-for="Price" class="text-danger"></span>
+                        <label asp-for="Description"></label>
+                        <input asp-for="Description" class="form-control" />
+                        <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
+
                     <div class="form-group mb-3">
-                        <label asp-for="MQuantity">M Quantity</label>
-                        <input asp-for="MQuantity" class="form-control" />
-                        <span asp-validation-for="Price" class="text-danger"></span>
+                        <label asp-for="CategoryId" class="control-label"></label>
+                        <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-control">
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
                     </div>
-                    <div class="form-group mb-3">
-                        <label asp-for="LQuantity">L Quantity</label>
-                        <input asp-for="LQuantity" class="form-control" />
-                        <span asp-validation-for="Price" class="text-danger"></span>
-                    </div>
-                         <div class="form-group mb-3">
-                            <label asp-for="CategoryId" class="control-label"></label>
-                            <select asp-for="CategoryId" class="form-control">
-                               
-                            </select>
-                            <span asp-validation-for="CategoryId" class="text-danger"></span>
-                        </div>
+
                     <div class="form-group mb-3">
                         <label asp-for="clientFile" class="control-label">Upload New Image (optional)</label>
                         <input asp-for="clientFile" class="form-control" type="file" />
                         <span asp-validation-for="clientFile" class="text-danger"></span>
                     </div>
-                    @* <div class="form-group mb-3">
-                        <label asp-for="dbImage" class="control-label"></label>
-                        <input asp-for="dbImage" class="form-control" type="file" />
-                        <span asp-validation-for="dbImage" class="text-danger"></span>
-                    </div> *@
-                       @*  <div>
-                            <input type="hidden" asp-for="clientFile" />
-                        </div> *@
-                        <br />
-                        <hr />
+
+
+                    <h4>Available Colors:</h4>
+                    <div id="colorOptions">
+                        @foreach (var color in ViewBag.Colors)
+                        {
+                            <label>
+                                <input type="checkbox" class="color-checkbox" value="@color.Id" data-name="@color.ColorName" />
+                                @color.ColorName
+                            </label>
+
+                            <br />
+                        }
+                    </div>
+
+                    <h4>Available Sizes:</h4>
+                    <div id="sizeOptions">
+                        @foreach (var size in ViewBag.Sizes)
+                        {
+                            <label>
+                                <input type="checkbox" class="size-checkbox" value="@size.Id" data-name="@size.SizeName" />
+                                @size.SizeName
+                            </label>
+
+                            <br />
+                        }
+                    </div>
+
+                    <h4>Enter Quantity for Each (Color + Size):</h4>
+                    <div id="variants"></div>
+
+                    <hr />
                     <button type="submit" class="btn btn-success">Save</button>
-                        <a asp-action="Index" asp-controller="Product" class="btn btn-secondary">
-                            back to items
-                        </a>
+                    <a asp-action="Index" asp-controller="Product" class="btn btn-secondary">Back to Items</a>
                 </form>
             </div>
         </div>
-     </div>
+    </div>
+
     <br />
     <br />
-   </body>
-</html>
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        <script>
+            var loadFile = function (event) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    var myImg = document.getElementById('myImg');
+                    myImg.src = reader.result;
+                }
+                reader.readAsDataURL(event.target.files[0]);
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                let colorCheckboxes = document.querySelectorAll(".color-checkbox");
+                let sizeCheckboxes = document.querySelectorAll(".size-checkbox");
+                let variantsContainer = document.getElementById("variants");
+
+                function updateVariants() {
+                    variantsContainer.innerHTML = "";
+
+                    let selectedColors = Array.from(colorCheckboxes).filter(c => c.checked);
+                    let selectedSizes = Array.from(sizeCheckboxes).filter(s => s.checked);
+
+                    selectedColors.forEach(color => {
+                        selectedSizes.forEach(size => {
+                            let colorId = color.value;
+                            let colorName = color.dataset.name;
+                            let sizeId = size.value;
+                            let sizeName = size.dataset.name;
+
+                            let variantHtml = `
+                                                <div class="variant">
+                                                    <label>Quantity (${colorName} - ${sizeName}):</label>
+                                                    <input type="hidden" name="Variants[${colorId}_${sizeId}].ColorId" value="${colorId}" />
+                                                    <input type="hidden" name="Variants[${colorId}_${sizeId}].SizeId" value="${sizeId}" />
+                                                    <input type="number" name="Variants[${colorId}_${sizeId}].Quantity" class="form-control" required />
+                                                </div>
+                                            `;
+                            variantsContainer.innerHTML += variantHtml;
+                        });
+                    });
+                }
+
+                colorCheckboxes.forEach(cb => cb.addEventListener("change", updateVariants));
+                sizeCheckboxes.forEach(cb => cb.addEventListener("change", updateVariants));
+            });
+        </script>
+    }

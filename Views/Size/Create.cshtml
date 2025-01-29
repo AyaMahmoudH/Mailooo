@@ -1,0 +1,10 @@
+﻿@model Mailoo.Models.Size
+
+<h2>Add a new size</h2>
+
+<form asp-action="Create" method="post">
+    <label>Size name:</label>
+    <input asp-for="SizeName" class="form-control" required />
+    <button type="submit" class="btn btn-success mt-2">Create</button>
+</form>
+

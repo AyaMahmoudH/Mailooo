@@ -33,18 +33,18 @@ namespace Mailoo.Models
         [Required(ErrorMessage = "Email is required.")]
         public string Email { get; set; }
 
-        [StringLength(20, MinimumLength = 5, ErrorMessage = "Max 20 or Min 5 characters allowed.")]
-        [DataType(DataType.Password)]
-        [Required(ErrorMessage = "Current Password is required.")]
-        public string CurrentPassword { get; set; }
+      //  [StringLength(20, MinimumLength = 5, ErrorMessage = "Max 20 or Min 5 characters allowed.")]
+      //  [DataType(DataType.Password)]
+      ////  [Required(ErrorMessage = "Current Password is required.")]
+      //  public string CurrentPassword { get; set; }
 
-        [DataType(DataType.Password)]
-        [MinLength(6, ErrorMessage = "New Password must be at least 6 characters long.")]
-        public string NewPassword { get; set; }
+      //  [DataType(DataType.Password)]
+      //  [MinLength(6, ErrorMessage = "New Password must be at least 6 characters long.")]
+      //  public string? NewPassword { get; set; }
 
-        [Compare("NewPassword", ErrorMessage = "Please confirm your password")]
-        [DataType(DataType.Password)]
-        public string ConfirmNewPassword { get; set; }
+      //  [Compare("NewPassword", ErrorMessage = "Please confirm your password")]
+      //  [DataType(DataType.Password)]
+      //  public string? ConfirmNewPassword { get; set; }
 
         [EnumDataType(typeof(Gender))]
         [Required(ErrorMessage = "Gender is required.")]

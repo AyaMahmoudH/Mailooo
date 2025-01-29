@@ -26,6 +26,9 @@ builder.Services.AddSingleton<PayPalService>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+builder.Services.AddScoped<EmailService>();
+
+
 
 
 builder.Services.AddAuthorization(options =>

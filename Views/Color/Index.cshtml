@@ -1,0 +1,26 @@
+﻿@model IEnumerable<Mailoo.Models.Color>
+
+<h2>Color management</h2>
+
+<a href="@Url.Action("Create")" class="btn btn-primary">Add a New Color</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Color name</th>
+            <th>procedures</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var color in Model)
+        {
+            <tr>
+                <td>@color.ColorName</td>
+                <td>
+                    <a href="@Url.Action("Edit", new { id = color.Id })" class="btn btn-warning">Edit</a>
+                    <a href="@Url.Action("Delete", new { id = color.Id })" class="btn btn-danger" onclick="return confirm('Are you sure to delete?')">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

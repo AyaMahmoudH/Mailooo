@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Mailo.Data.Enums;
+using Mailoo.Models;
 
 namespace Mailo.Models
 {
@@ -21,7 +22,9 @@ namespace Mailo.Models
         [MinLength(1)]
         public int Quantity { get; set; } = 1;
         public Sizes Sizes { get; set; }
+        public int VariantID { get; set; } 
+        public ProductVariant Variant { get; set; }
 
-	}
+    }
 }
 

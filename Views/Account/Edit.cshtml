@@ -92,14 +92,14 @@
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
+           @*  <div class="form-group mb-3">
                 <label asp-for="CurrentPassword" class="control-label"></label>
                 <i class="fas fa-lock"></i>
-                <input asp-for="CurrentPassword" class="form-control" type="password" />
+                <input asp-for="CurrentPassword" class="form-control" type="password"  />
                 <span asp-validation-for="CurrentPassword" class="text-danger"></span>
-            </div>
+            </div> *@
 
-            <div class="form-group mb-3">
+           @*  <div class="form-group mb-3">
                 <label asp-for="NewPassword" class="control-label"></label>
                 <i class="fas fa-lock"></i>
                 <input asp-for="NewPassword" class="form-control" type="password" />
@@ -111,7 +111,7 @@
                 <i class="fas fa-lock"></i>
                 <input asp-for="ConfirmNewPassword" class="form-control" type="password" />
                 <span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
-            </div>
+            </div> *@
 
             <div class="form-group mb-3">
                 <label asp-for="Gender" class="control-label"></label>
@@ -138,4 +138,13 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                toastr.success('@TempData["SuccessMessage"]');
+            </text>
+        }
+    </script>
+
 }

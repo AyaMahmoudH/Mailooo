@@ -30,7 +30,14 @@ namespace Mailo.Data
             modelBuilder.Entity<Payment>().ToTable("Payment");
             modelBuilder.Entity<Wishlist>().ToTable("Wishlist");
             modelBuilder.Entity<Contact>().ToTable("Contact");
+            modelBuilder.Entity<Review>().ToTable("Review");
             modelBuilder.Entity<Category>().ToTable("Category");
+            modelBuilder.Entity<PromoCode>().ToTable("PromoCode");
+            modelBuilder.Entity<ProductVariant>().ToTable("ProductVariant");
+            modelBuilder.Entity<Size>().ToTable("Size");
+            modelBuilder.Entity<Color>().ToTable("Color");
+            modelBuilder.Entity<Employee>().ToTable("Employee");
+
             modelBuilder.Entity<Product>().HasKey(p => p.ID);
             modelBuilder.Entity<User>().HasData(
             new User
@@ -157,6 +164,10 @@ namespace Mailo.Data
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<PromoCode> PromoCodes { get; set; }
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<ProductVariant> ProductVariants { get; set; }
+        public DbSet<Size> Sizes { get; set; }
+        public DbSet<Color> Colors { get; set; }
         #endregion
 
     }

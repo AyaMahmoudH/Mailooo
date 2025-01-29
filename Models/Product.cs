@@ -30,9 +30,9 @@ namespace Mailo.Models
         public double Discount { get; set; } = 0;
         public double TotalPrice { get; set; }
         public double Price { get; set; }
-        public int SQuantity { get; set; } = 0;
-        public int MQuantity { get; set; } = 0;
-        public int LQuantity { get; set; } = 0;
+        //public int SQuantity { get; set; } = 0;
+        //public int MQuantity { get; set; } = 0;
+        //public int LQuantity { get; set; } = 0;
         public string? ImageUrl { get; set; }
         [NotMapped]
         public IFormFile? clientFile { get; set; }
@@ -61,6 +61,10 @@ namespace Mailo.Models
         public Category? Categorys { get; set; }
         public ICollection<OrderProduct>? OrderProducts { get; set; }
         public ICollection<Wishlist>? wishlists { get; set; }
-        
-    }  
+     //   public ICollection<Review> Reviews { get; set; }
+        public List<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
+
+
+
+    }
 }

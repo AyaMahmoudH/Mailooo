@@ -1,7 +1,5 @@
-﻿using Azure.Core;
-using Mailo.Data;
+﻿using Mailo.Data;
 using Mailo.Models;
-using Mailoo.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -9,9 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Mail;
 using System.Net;
-using System;
 using System.Security.Claims;
+using Mailoo.Models;
 using Mailoo.Data.Enums;
+using Mailo.Data.Enums;
 
 namespace Mailo.Controllers
 {
@@ -19,9 +18,9 @@ namespace Mailo.Controllers
     {
         private readonly AppDbContext _context;
 
-        public AccountController(AppDbContext appDbContext)
+        public AccountController(AppDbContext context)
         {
-            _context = appDbContext;
+            _context = context;
         }
 
         public IActionResult Index()
@@ -37,8 +36,6 @@ namespace Mailo.Controllers
         [HttpPost]
         public IActionResult Registration(RegistrationViewModel model)
         {
-         
-
             if (ModelState.IsValid)
             {
                 var account = new User
@@ -53,7 +50,6 @@ namespace Mailo.Controllers
                     Address = model.Address,
                     Gender = model.Gender,
                     UserType = model.UserType,
-                  
                 };
 
                 try
@@ -61,13 +57,13 @@ namespace Mailo.Controllers
                     _context.Users.Add(account);
                     _context.SaveChanges();
                     ModelState.Clear();
+
                     ViewBag.Message = $"{account.FName} {account.LName} registered successfully. Please Login.";
                     return View("Login");
                 }
                 catch (DbUpdateException)
                 {
-                    ModelState.AddModelError("", "Please enter unique Email or Password.");
-                    return View(model);
+                    ModelState.AddModelError("", "Please enter unique Email or Username.");
                 }
             }
             return View(model);
@@ -90,7 +86,6 @@ namespace Mailo.Controllers
                     {
                         new Claim(ClaimTypes.Name, user.Email),
                         new Claim("Name", user.FName),
-                        new Claim(ClaimTypes.Role, "User"),
                         new Claim(ClaimTypes.Role, user.UserType.ToString())
                     };
 
@@ -100,7 +95,7 @@ namespace Mailo.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Username/Email or Password is not correct");
+                    ModelState.AddModelError("", "Username/Email or Password is not correct.");
                 }
             }
             return View(model);
@@ -125,11 +120,10 @@ namespace Mailo.Controllers
                     FName = user.FName,
                     LName = user.LName,
                     PhoneNumber = user.PhoneNumber,
-                    Governorate = user.Governorate,
                     Address = user.Address,
+                    Governorate = user.Governorate,
                     Email = user.Email, // Displayed as read-only
                     Username = user.Username, // Displayed as read-only
-                    CurrentPassword = user.Password, // Display the current password directly
                     Gender = user.Gender,
                     UserType = user.UserType
                 };
@@ -153,44 +147,26 @@ namespace Mailo.Controllers
                     user.FName = model.FName;
                     user.LName = model.LName;
                     user.PhoneNumber = model.PhoneNumber;
-                    user.Governorate = model.Governorate;
                     user.Address = model.Address;
-
-                    if (!string.IsNullOrEmpty(model.NewPassword))
-                    {
-                        if (user.Password == model.CurrentPassword) // Check if displayed password matches the stored password
-                        {
-                            if (model.NewPassword == model.ConfirmNewPassword)
-                            {
-                                user.Password = model.NewPassword;
-                            }
-                            else
-                            {
-                                ModelState.AddModelError("", "New Password and Confirm Password do not match.");
-                                return View(model);
-                            }
-                        }
-                        else
-                        {
-                            ModelState.AddModelError("", "Current Password is incorrect.");
-                            return View(model);
-                        }
-                    }
+                    user.Governorate = model.Governorate;
+                    user.Gender = model.Gender;
 
                     _context.SaveChanges();
-                    ViewBag.Message = "Profile updated successfully!";
 
-                    if (!string.IsNullOrEmpty(model.NewPassword))
-                    {
-                        HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                        return RedirectToAction("Login");
-                    }
+                    TempData["SuccessMessage"] = "Your data has been successfully modified!";
 
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Edit");
                 }
             }
+
             return View(model);
         }
+
+
+
+
+
+
 
         public IActionResult ForgotPassword()
         {
@@ -198,63 +174,85 @@ namespace Mailo.Controllers
         }
 
         [HttpPost]
-        public IActionResult ForgotPassword(ForgotPasswordViewModel model)
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
                 if (user != null)
                 {
-                    ViewBag.Message = "Check your email for the password reset link.";
+                    user.PasswordResetToken = Guid.NewGuid().ToString();
+                    user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+                    _context.SaveChanges();
+
+                    await SendResetPasswordEmail(user.Email, user.PasswordResetToken);
+
+                    ViewBag.Message = "A password reset link has been sent to your email.";
                     return View();
                 }
                 ModelState.AddModelError("", "Email not found.");
             }
             return View(model);
         }
-   
 
-    public async Task SendResetPasswordEmail(string email, string token)
-    {
-        var resetLink = Url.Action("ResetPassword", "Account", new { token }, Request.Scheme);
-
-        var message = new MailMessage();
-        message.To.Add(email);
-        message.Subject = "Reset Password";
-        message.Body = $"Please reset your password by clicking here: <a href=\"{resetLink}\">link</a>";
-        message.IsBodyHtml = true;
-
-        using (var smtp = new SmtpClient())
-        {
-            smtp.Host = "smtp.example.com";
-            smtp.Port = 587;
-            smtp.Credentials = new NetworkCredential("username", "password");
-            smtp.EnableSsl = true;
-            await smtp.SendMailAsync(message);
-        }
-    }
         public IActionResult ResetPassword(string token)
         {
+            var user = _context.Users.FirstOrDefault(u => u.PasswordResetToken == token && u.PasswordResetTokenExpiry > DateTime.UtcNow);
+
+            if (user == null)
+            {
+                ViewBag.Message = "Invalid or expired token.";
+                return View("Error");
+            }
+
             return View(new ResetPasswordViewModel { Token = token });
         }
 
+        [HttpPost]
         [HttpPost]
         public IActionResult ResetPassword(ResetPasswordViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var user = _context.Users.FirstOrDefault(u => u.PasswordResetToken == model.Token); 
+                var user = _context.Users.FirstOrDefault(u => u.PasswordResetToken == model.Token && u.PasswordResetTokenExpiry > DateTime.UtcNow);
 
                 if (user != null)
                 {
                     user.Password = model.NewPassword; 
-                    _context.SaveChanges();
+                    user.PasswordResetToken = null;
+                    user.PasswordResetTokenExpiry = null;
+
+                    _context.SaveChanges(); 
+
+                    ViewBag.Message = "Your password has been reset successfully.";
                     return RedirectToAction("Login");
                 }
-                ModelState.AddModelError("", "Invalid token.");
+
+                ModelState.AddModelError("", "Invalid or expired token.");
             }
             return View(model);
         }
 
+
+        private async Task SendResetPasswordEmail(string email, string token)
+        {
+            var resetLink = Url.Action("ResetPassword", "Account", new { token }, Request.Scheme);
+
+            var message = new MailMessage();
+            message.From = new MailAddress("mailostoreee@gmail.com"); 
+            message.To.Add(email);
+            message.Subject = "Reset Password";
+            message.Body = $"Please reset your password by clicking here: <a href=\"{resetLink}\">link</a>";
+            message.IsBodyHtml = true;
+
+            using (var smtp = new SmtpClient())
+            {
+                smtp.Host = "smtp.gmail.com"; 
+                smtp.Port = 587;
+                smtp.Credentials = new NetworkCredential("mailostoreee@gmail.com", "zrck gmqn cwzh bveq");
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+        }
     }
 }
